@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        form {
+            width: 30%;
+            height: 90vh;
+            float: left;
+        }
+
+        form textarea {
+            width: 100%;
+            height: 100%;
+        }
+
+        #output {
+            position: relative;
+            width: 70%;
+            height: 100vh;
+            float: right;
+
+            background-color: lightgoldenrodyellow;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form">
+        <form name="dungeon" onsubmit="return false">
+            <textarea name="tree">
+            {
+                "rect": { "x": 0, "y": 0, "width": 50, "height": 50},
+            
+                "sub1": {
+                    "rect": { "x": 0, "y": 0, "width": 30, "height": 50},
+                    "room": { "x": 10, "y": 10, "width": 15, "height": 5}
+                },
+                
+                "sub2": {
+                    "rect": { "x": 30, "y": 0, "width": 20, "height": 50},
+
+                    "sub1": {
+                        "rect": { "x": 30, "y": 0, "width": 20, "height": 35},
+                        "room": { "x": 32, "y": 0, "width": 10, "height": 10}
+                    },
+
+                    "sub2": {
+                        "rect": { "x": 30, "y": 35, "width": 20, "height": 15},
+                        "room": { "x": 33, "y": 40, "width": 5, "height": 5}
+                    }
+                }
+            }
+                            </textarea>
+            <button type="button" onclick="drawDungeon()">Draw</button>
+            <label>scale:<input type="number" name="scale" value="10"></label>
+            <span id="error"></span>
+        </form>
+    </div>
+    <div id="output"></div>
+
+    <script lang="javascript">
+        var scale;
+
+        function addRect(target, dx, dy, obj) {
+            if (!obj) {
+                return;
+            }
+
+            var rect = obj.rect;
+
+            if (!rect) {
+                return;
+            }
+
+            var n = document.createElement('div')
+
+            n.style.width = (scale * rect.width) + 'px';
+            n.style.height = (scale * rect.height) + 'px';
+            n.style.position = 'absolute';
+            n.style.left = (scale * (rect.x - dx)) + 'px';
+            n.style.top = (scale * (rect.y - dy)) + 'px';
+            n.style.border = '1px solid black';
+            //n.style.boxSizing = 'border-box';
+
+            target.appendChild(n)
+
+            if (obj.room) {
+                var m = document.createElement('div')
+
+                m.style.width = (scale * obj.room.width) + 'px';
+                m.style.height = (scale * obj.room.height) + 'px';
+                m.style.position = 'absolute';
+                m.style.left = (scale * (obj.room.x - dx)) + 'px';
+                m.style.top = (scale * (obj.room.y - dy)) + 'px';
+                m.style.backgroundColor = 'darkgreen';
+                m.style.opacity = 0.3;
+
+                target.appendChild(m)
+            }
+
+            addRect(n, dx + rect.x, dy + rect.y, obj.sub1)
+            addRect(n, dx + rect.x, dy + rect.y, obj.sub2)
+        }
+
+        function drawDungeon() {
+            scale = + document.forms.dungeon.scale.value;
+
+            var output = document.getElementById('output')
+            output.innerHTML = ''
+
+            try {
+                var x = JSON.parse(document.forms.dungeon.tree.value);
+
+                document.forms.dungeon.tree.value = JSON.stringify(x, null, 2);
+
+                document.getElementById('error').innerText = '';
+
+                addRect(output, 0, 0, x)
+
+            } catch (e) {
+                document.getElementById('error').innerText = e;
+            }
+
+            //console.log(x);
+        }
+
+    </script>
+</body>
+
+</html>
