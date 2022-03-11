@@ -36,104 +36,11 @@ func New(width int, height int, rnd RandomNumberGenerator) *BspDungeonGenerator 
 }
 
 func (g *BspDungeonGenerator) Generate() {
-	//s := &step{g, rnd, nil, rect{0, 0, g.Width, g.Height}, horizontal, nil, nil, rect{}}
-
 	g.splitSpace()
 
 	g.generateRooms()
-
-	//g.dump(s)
 }
 
-// func (g *BspDungeonGenerator) dump() {
-// 	//var d int = 0
-// 	var f func(*step)
-// 	//tiles := make([]int, g.Width*g.Height)
-
-// 	/*drawRect := func(r rect) {
-// 		for y := 0; y < r.height; y++ {
-// 			for x := 0; x < r.width; x++ {
-// 				tiles[y*g.Width+x] = d
-// 			}
-// 		}
-// 	}*/
-
-// 	f = func(s *step) {
-// 		fmt.Printf("{ \"rect\": {\"x\": %d, \"y\": %d, \"width\": %d, \"height\": %d }",
-// 			s.rect.x, s.rect.y, s.rect.width, s.rect.height,
-// 		)
-
-// 		if s.sub1 == nil && s.sub2 == nil {
-// 			//drawRect(s.rect)
-// 			fmt.Printf(", \"room\": {\"x\": %d, \"y\": %d, \"width\": %d, \"height\": %d }",
-// 				s.room.x, s.room.y, s.room.width, s.room.height,
-// 			)
-// 		}
-
-// 		//d++
-
-// 		if s.sub1 != nil {
-// 			fmt.Print(", \"sub1\": ")
-// 			f(s.sub1)
-// 		}
-// 		if s.sub2 != nil {
-// 			fmt.Print(", \"sub2\": ")
-// 			f(s.sub2)
-// 		}
-
-// 		fmt.Println(" }")
-// 	}
-
-// 	f(s)
-
-// 	/*for y := 0; y < g.Height; y++ {
-// 		for x := 0; x < g.Width; x++ {
-// 			t := tiles[y*g.Width+x]
-
-// 			fmt.Printf("%d", tiles[t])
-// 		}
-
-// 		fmt.Println()
-// 	}*/
-// }
-
-/*
-func (s *step) drawRect(r rect) {
-	for y := 0; y < r.height; y++ {
-		for x := 0; x < r.width; x++ {
-			s.g.setTile(x+r.x, y+r.y, Room)
-		}
-	}
-}
-
-func (s *step) drawPath(x1, y1, x2, y2 int) {
-	if x1 == x2 {
-		for y := y1; y <= y2; y++ {
-			if s.g.getTile(x1, y) != Rock {
-				continue
-			}
-
-			s.g.setTile(x1, y, Path)
-		}
-
-		return
-	}
-
-	if y1 == y2 {
-		for x := x1; x <= x2; x++ {
-			if s.g.getTile(x, y1) != Rock {
-				continue
-			}
-
-			s.g.setTile(x, y1, Path)
-		}
-
-		return
-	}
-
-	panic("cannot happen") // TODO: handle error properly
-}
-*/
 /*func (s *step) generatePath() {
 	c1x, c1y := s.sub1.rect.center()
 	c2x, c2y := s.sub2.rect.center()
@@ -176,8 +83,6 @@ func (s *BspDungeonGenerator) generateRooms() {
 	}
 
 	s.Room = Rect{room_x + s.Rect.X, room_y + s.Rect.Y, room_width, room_height}
-
-	//s.drawRect(s.room)
 }
 
 func (s *BspDungeonGenerator) splitSpace() {
