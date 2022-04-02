@@ -8,9 +8,6 @@ const (
 	Path
 )
 
-const min_step_size int = 4
-const min_room_size int = 3
-
 type Rect struct {
 	X, Y, Width, Height int
 }
@@ -23,16 +20,17 @@ const (
 )
 
 type BspDungeonGenerator struct {
-	rnd        RandomNumberGenerator
-	parent     *BspDungeonGenerator
-	Rect       Rect
-	dir        direction
-	Sub1, Sub2 *BspDungeonGenerator
-	Room       Rect
+	rnd         RandomNumberGenerator
+	parent      *BspDungeonGenerator
+	Rect        Rect
+	Sub1, Sub2  *BspDungeonGenerator
+	Room        Rect
+	minStepSize int // = 4
+	minRoomSize int // = 3
 }
 
-func New(width int, height int, rnd RandomNumberGenerator) *BspDungeonGenerator {
-	return &BspDungeonGenerator{rnd, nil, Rect{0, 0, width, height}, horizontal, nil, nil, Rect{}}
+func New(width int, height int, rnd RandomNumberGenerator, minStepSize, minRoomSize int) *BspDungeonGenerator {
+	return &BspDungeonGenerator{rnd, nil, Rect{0, 0, width, height}, nil, nil, Rect{}, minStepSize, minRoomSize}
 }
 
 func (g *BspDungeonGenerator) Generate() {
@@ -58,16 +56,16 @@ func (s *BspDungeonGenerator) generateRooms() {
 		return
 	}
 
-	room_width := s.Rect.Width - min_room_size
+	room_width := s.Rect.Width - s.minRoomSize
 
 	if room_width > 0 {
-		room_width = s.rnd.Intn(room_width+1) + min_room_size
+		room_width = s.rnd.Intn(room_width+1) + s.minRoomSize
 	}
 
-	room_height := s.Rect.Height - min_room_size
+	room_height := s.Rect.Height - s.minRoomSize
 
 	if room_height > 0 {
-		room_height = s.rnd.Intn(room_height+1) + min_room_size
+		room_height = s.rnd.Intn(room_height+1) + s.minRoomSize
 	}
 
 	room_x := s.Rect.Width - room_width
@@ -86,40 +84,53 @@ func (s *BspDungeonGenerator) generateRooms() {
 }
 
 func (s *BspDungeonGenerator) splitSpace() {
-	if s.Rect.Width <= 2*min_step_size || s.Rect.Height <= 2*min_step_size {
-		return
-	}
-
 	var size int
+	var dir direction
 
-	if s.dir == horizontal {
+	if s.Rect.Width <= 2*s.minStepSize {
+		if s.Rect.Height <= 2*s.minStepSize {
+			return
+		}
+
+		dir = horizontal
 		size = s.Rect.Height
 
-	} else {
+	} else if s.Rect.Height <= 2*s.minStepSize {
+		dir = vertical
 		size = s.Rect.Width
+
+	} else {
+		dir = direction(s.rnd.Intn(2))
+
+		if dir == horizontal {
+			size = s.Rect.Height
+
+		} else {
+			size = s.Rect.Width
+		}
 	}
 
-	sub_size := s.rnd.Intn(size-2*min_step_size+1) + min_step_size
+	sub_size := s.rnd.Intn(size-2*s.minStepSize+1) + s.minStepSize
 
-	s.split(sub_size)
+	s.split(dir, sub_size)
 
 	s.Sub1.splitSpace()
 	s.Sub2.splitSpace()
 }
 
-func (s *BspDungeonGenerator) split(sub_size int) {
-	if s.dir == horizontal {
+func (s *BspDungeonGenerator) split(dir direction, sub_size int) {
+	if dir == horizontal {
 		r1 := Rect{s.Rect.X, s.Rect.Y, s.Rect.Width, sub_size}
 		r2 := Rect{s.Rect.X, s.Rect.Y + sub_size, s.Rect.Width, s.Rect.Height - sub_size}
 
-		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, vertical, nil, nil, Rect{}}
-		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, vertical, nil, nil, Rect{}}
+		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
+		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
 	} else {
 		r1 := Rect{s.Rect.X, s.Rect.Y, sub_size, s.Rect.Height}
 		r2 := Rect{s.Rect.X + sub_size, s.Rect.Y, s.Rect.Width - sub_size, s.Rect.Height}
 
-		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, horizontal, nil, nil, Rect{}}
-		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, horizontal, nil, nil, Rect{}}
+		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
+		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
 	}
 }
 
