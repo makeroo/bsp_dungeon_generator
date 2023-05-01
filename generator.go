@@ -5,7 +5,7 @@ func (r Rect) center() (int, int) {
 }
 
 func New(width int, height int, rnd RandomNumberGenerator, minStepSize, minRoomSize int) *BspDungeonGenerator {
-	return &BspDungeonGenerator{rnd, nil, Rect{0, 0, width, height}, nil, nil, Rect{}, minStepSize, minRoomSize}
+	return &BspDungeonGenerator{rnd, nil, Rect{0, 0, width, height}, nil, nil, Rect{}, nil, minStepSize, minRoomSize}
 }
 
 func (g *BspDungeonGenerator) Generate() {
@@ -14,19 +14,19 @@ func (g *BspDungeonGenerator) Generate() {
 	g.generateRooms()
 }
 
-/*func (s *step) generatePath() {
-	c1x, c1y := s.sub1.rect.center()
-	c2x, c2y := s.sub2.rect.center()
+func (s *BspDungeonGenerator) generatePath() {
+	c1x, c1y := s.Sub1.Rect.center()
+	c2x, c2y := s.Sub2.Rect.center()
 
-	s.drawPath(c1x, c1y, c2x, c2y)
-}*/
+	s.Path = &PathDefinition{[]Segment{{c1x, c1y, c2x, c2y}}}
+}
 
 func (s *BspDungeonGenerator) generateRooms() {
 	if !s.isLeaf() {
 		s.Sub1.generateRooms()
 		s.Sub2.generateRooms()
 
-		// TODO: restore s.generatePath()
+		s.generatePath()
 
 		return
 	}
@@ -74,14 +74,14 @@ func (s *BspDungeonGenerator) split(dir direction, sub_size int) {
 		r1 := Rect{s.Rect.X, s.Rect.Y, s.Rect.Width, sub_size}
 		r2 := Rect{s.Rect.X, s.Rect.Y + sub_size, s.Rect.Width, s.Rect.Height - sub_size}
 
-		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
-		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
+		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, nil, nil, Rect{}, nil, s.minStepSize, s.minRoomSize}
+		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, nil, nil, Rect{}, nil, s.minStepSize, s.minRoomSize}
 	} else {
 		r1 := Rect{s.Rect.X, s.Rect.Y, sub_size, s.Rect.Height}
 		r2 := Rect{s.Rect.X + sub_size, s.Rect.Y, s.Rect.Width - sub_size, s.Rect.Height}
 
-		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
-		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, nil, nil, Rect{}, s.minStepSize, s.minRoomSize}
+		s.Sub1 = &BspDungeonGenerator{s.rnd, s, r1, nil, nil, Rect{}, nil, s.minStepSize, s.minRoomSize}
+		s.Sub2 = &BspDungeonGenerator{s.rnd, s, r2, nil, nil, Rect{}, nil, s.minStepSize, s.minRoomSize}
 	}
 }
 
