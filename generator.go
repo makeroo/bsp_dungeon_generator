@@ -56,31 +56,7 @@ func (s *BspDungeonGenerator) generateRooms() {
 		return
 	}
 
-	room_width := s.Rect.Width - s.minRoomSize
-
-	if room_width > 0 {
-		room_width = s.rnd.Intn(room_width+1) + s.minRoomSize
-	}
-
-	room_height := s.Rect.Height - s.minRoomSize
-
-	if room_height > 0 {
-		room_height = s.rnd.Intn(room_height+1) + s.minRoomSize
-	}
-
-	room_x := s.Rect.Width - room_width
-
-	if room_x > 0 {
-		room_x = s.rnd.Intn(room_x + 1)
-	}
-
-	room_y := s.Rect.Height - room_height
-
-	if room_y > 0 {
-		room_y = s.rnd.Intn(room_y + 1)
-	}
-
-	s.Room = Rect{room_x + s.Rect.X, room_y + s.Rect.Y, room_width, room_height}
+	s.Room = s.rnd.Rect(s.Rect, s.minRoomSize)
 }
 
 func (s *BspDungeonGenerator) splitSpace() {
@@ -100,7 +76,7 @@ func (s *BspDungeonGenerator) splitSpace() {
 		size = s.Rect.Width
 
 	} else {
-		dir = direction(s.rnd.Intn(2))
+		dir = s.rnd.Direction()
 
 		if dir == horizontal {
 			size = s.Rect.Height
@@ -110,7 +86,7 @@ func (s *BspDungeonGenerator) splitSpace() {
 		}
 	}
 
-	sub_size := s.rnd.Intn(size-2*s.minStepSize+1) + s.minStepSize
+	sub_size := s.rnd.Split(size, s.minStepSize)
 
 	s.split(dir, sub_size)
 
