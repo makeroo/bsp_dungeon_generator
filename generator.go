@@ -1,32 +1,7 @@
 package bsp_dungeon_generator
 
-type TileType int
-
-const (
-	Rock TileType = iota
-	Room
-	Path
-)
-
-type Rect struct {
-	X, Y, Width, Height int
-}
-
-type direction int
-
-const (
-	horizontal direction = iota
-	vertical
-)
-
-type BspDungeonGenerator struct {
-	rnd         RandomNumberGenerator
-	parent      *BspDungeonGenerator
-	Rect        Rect
-	Sub1, Sub2  *BspDungeonGenerator
-	Room        Rect
-	minStepSize int // = 4
-	minRoomSize int // = 3
+func (r Rect) center() (int, int) {
+	return r.X + r.Width/2, r.Y + r.Height/2
 }
 
 func New(width int, height int, rnd RandomNumberGenerator, minStepSize, minRoomSize int) *BspDungeonGenerator {
